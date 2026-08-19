@@ -1,20 +1,17 @@
-@description('Plassering for ressursene')
 param location string
+param vnetName string = 'vnet-vm-test'
 
-@description('Navn på Virtual Network')
-param vnetName string = 'vnet-portfolio-dev'
-
-resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2025-07-01' = {
   name: 'nsg-vm-subnet'
   location: location
   properties: {
     securityRules: [
-      // Ingen åpne porter mot internett er påkrevd siden vi bruker Bastion og Entra ID
+      // Ingen åpen porter, krever innlogging via bastion og entra id
     ]
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2025-07-01' = {
   name: vnetName
   location: location
   properties: {
@@ -34,7 +31,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
         }
       }
       {
-        // Påkrevd navn for Azure Bastion Subnet
         name: 'AzureBastionSubnet'
         properties: {
           addressPrefix: '10.0.2.0/24'
@@ -44,5 +40,5 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
   }
 }
 
-@description('Resource ID for arbeidsbelastnings-subnettet')
+@description('Subnet id for å knytte til NIC')
 output vmSubnetId string = vnet.properties.subnets[0].id

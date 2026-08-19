@@ -1,16 +1,10 @@
-@description('Plassering for ressursene')
 param location string
+param subnedId string
+param vmName string = 'vm-rbac-test'
 
-@description('Subnet ID hvor VM skal plasseres')
-param subnetId string
-
-@description('Navn på den virtuelle maskinen')
-param vmName string = 'vm-portfolio-linux'
-
-@description('Admin brukernavn for lokal beredskapskonto')
 param adminUsername string = 'azureuser'
 
-resource nic 'Microsoft.Network/networkInterfaces@2023-09-01' = {
+resource nic 'Microsoft.Network/networkInterfaces@2025-07-01' = {
   name: '${vmName}-nic'
   location: location
   properties: {
@@ -20,7 +14,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-09-01' = {
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: subnetId
+            id: subnedId
           }
         }
       }
@@ -28,10 +22,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   }
 }
 
-resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2026-03-01' = {
   name: vmName
   location: location
-  // Aktiverer System-Assigned Managed Identity
   identity: {
     type: 'SystemAssigned'
   }
@@ -42,8 +35,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: adminUsername
-      // Genererer et tilfeldig passord for lokal konto (Entra ID brukes til daglig innlogging)
-      adminPassword: 'P@ssw0rd${uniqueString(resourceGroup().id)}!'
+      adminPassword: 'P@assword${uniqueString(resourceGroup().id)}'
     }
     storageProfile: {
       imageReference: {
@@ -69,8 +61,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-09-01' = {
   }
 }
 
-// VM-utvidelse som muliggjør Entra ID (Azure AD) SSH-innlogging
-resource entraIdExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-01' = {
+resource entraIdExtension 'Microsoft.Compute/virtualMachines/extensions@2026-03-01' = {
   parent: vm
   name: 'AADSSHLoginForLinux'
   location: location
@@ -82,8 +73,8 @@ resource entraIdExtension 'Microsoft.Compute/virtualMachines/extensions@2023-09-
   }
 }
 
-@description('Principal ID for VM sin Managed Identity')
+@description('Principal id for vmen sin managed identity')
 output systemIdentityPrincipalId string = vm.identity.principalId
 
-@description('Resource ID for selve VM-en')
+@description('Resource id for vmen')
 output vmId string = vm.id

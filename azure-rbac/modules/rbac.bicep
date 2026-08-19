@@ -1,10 +1,10 @@
-@description('Principal ID til brukeren, gruppen eller Managed Identity som skal få rollen')
+@description('IDen som skal tildeles rollen')
 param principalId string
 
-@description('ID for rolledefinisjonen i Azure (f.eks. Key Vault Secrets User eller VM Admin Login)')
+@description('Rolledefinisjon i Azure')
 param roleDefinitionId string
 
-@description('Type principal (User, Group, ServicePrincipal, Identity)')
+@description('Type princial (User, Group, ServicePrincipal)')
 param principalType string = 'User'
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
